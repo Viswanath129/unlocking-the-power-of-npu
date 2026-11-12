@@ -1,0 +1,762 @@
+/ {
+  model = "qcom,[soc]";
+  compatible = "root-process-hamoa-1.0-cdsp";
+  #address-cells = <0x2>;
+  #size-cells = <0x2>;
+  soc {
+    #address-cells = <0x1>;
+    #size-cells = <0x1>;
+    phandle = <0x1>;
+    boot {
+    };
+    pinctrl@f100000 {
+      compatible = "qcom,hamoa-pinctrl", "qcom,pinctrl";
+      reg = <0xf100000 0xf00000>;
+      ngpios = <0xed>;
+      width = <0x1000>;
+      id = ;
+      version = <0x1>;
+      gpio-controller = [];
+      #gpio-cells = <0x2>;
+      phandle = <0x2>;
+      qup0_se0_l0 {
+        mux = <0x0 0x1>;
+        phandle = <0x3>;
+      };
+      ibi_i3c_qup0_se0_sda {
+        mux = <0x0 0x2>;
+        phandle = <0x4>;
+      };
+      qup0_se0_l1 {
+        mux = <0x1 0x1>;
+        phandle = <0x5>;
+      };
+      ibi_i3c_qup0_se0_scl {
+        mux = <0x1 0x2>;
+        phandle = <0x6>;
+      };
+      qup0_se0_l2 {
+        mux = <0x2 0x1>;
+        phandle = <0x7>;
+      };
+      qup0_se0_l3 {
+        mux = <0x3 0x1>;
+        phandle = <0x8>;
+      };
+      qup0_se1_l0 {
+        mux = <0x4 0x1>;
+        phandle = <0x9>;
+      };
+      qup0_se1_l1 {
+        mux = <0x5 0x1>;
+        phandle = <0xa>;
+      };
+      qup0_se1_l2 {
+        mux = <0x6 0x1>;
+        phandle = <0xb>;
+      };
+      qup0_se1_l3 {
+        mux = <0x7 0x1>;
+        phandle = <0xc>;
+      };
+      qup0_se2_l0 {
+        mux = <0x8 0x1>;
+        phandle = <0xd>;
+      };
+      qup0_se2_l1 {
+        mux = <0x9 0x1>;
+        phandle = <0xe>;
+      };
+      qup0_se2_l2 {
+        mux = <0xa 0x1>;
+        phandle = <0xf>;
+      };
+      qup0_se2_l3 {
+        mux = <0xb 0x1>;
+        phandle = <0x10>;
+      };
+      qup0_se3_l0 {
+        mux = <0xc 0x1>;
+        phandle = <0x11>;
+      };
+      qup0_se7_l2 {
+        mux = <0xc 0x2>;
+        phandle = <0x12>;
+      };
+      qup0_se3_l1 {
+        mux = <0xd 0x1>;
+        phandle = <0x13>;
+      };
+      qup0_se7_l3 {
+        mux = <0xd 0x2>;
+        phandle = <0x14>;
+      };
+      qup0_se3_l2 {
+        mux = <0xe 0x1>;
+        phandle = <0x15>;
+      };
+      qup0_se7_l0 {
+        mux = <0xe 0x2>;
+        phandle = <0x16>;
+      };
+      qup0_se3_l3 {
+        mux = <0xf 0x1>;
+        phandle = <0x17>;
+      };
+      qup0_se7_l1 {
+        mux = <0xf 0x2>;
+        phandle = <0x18>;
+      };
+      qup0_se4_l0 {
+        mux = <0x10 0x1>;
+        phandle = <0x19>;
+      };
+      qup0_se4_l1 {
+        mux = <0x11 0x1>;
+        phandle = <0x1a>;
+      };
+      qup0_se2_l4 {
+        mux = <0x11 0x2>;
+        phandle = <0x1b>;
+      };
+      qup0_se4_l2 {
+        mux = <0x12 0x1>;
+        phandle = <0x1c>;
+      };
+      qup0_se2_l5 {
+        mux = <0x12 0x2>;
+        phandle = <0x1d>;
+      };
+      qup0_se4_l3 {
+        mux = <0x13 0x1>;
+        phandle = <0x1e>;
+      };
+      qup0_se2_l6 {
+        mux = <0x13 0x2>;
+        phandle = <0x1f>;
+      };
+      qup0_se5_l0 {
+        mux = <0x14 0x1>;
+        phandle = <0x20>;
+      };
+      qup0_se5_l1 {
+        mux = <0x15 0x1>;
+        phandle = <0x21>;
+      };
+      qup0_se3_l6 {
+        mux = <0x15 0x2>;
+        phandle = <0x22>;
+      };
+      qup0_se5_l2 {
+        mux = <0x16 0x1>;
+        phandle = <0x23>;
+      };
+      qup0_se3_l5 {
+        mux = <0x16 0x2>;
+        phandle = <0x24>;
+      };
+      qup0_se5_l3 {
+        mux = <0x17 0x1>;
+        phandle = <0x25>;
+      };
+      qup0_se3_l4 {
+        mux = <0x17 0x2>;
+        phandle = <0x26>;
+      };
+      qup0_se6_l0 {
+        mux = <0x18 0x1>;
+        phandle = <0x27>;
+      };
+      qup0_se6_l1 {
+        mux = <0x19 0x1>;
+        phandle = <0x28>;
+      };
+      qup0_se6_l2 {
+        mux = <0x1a 0x1>;
+        phandle = <0x29>;
+      };
+      qup0_se6_l3 {
+        mux = <0x1b 0x1>;
+        phandle = <0x2a>;
+      };
+      qup1_se0_l0 {
+        mux = <0x20 0x1>;
+        phandle = <0x2b>;
+      };
+      ibi_i3c_qup1_se0_sda {
+        mux = <0x20 0x2>;
+        phandle = <0x2c>;
+      };
+      qup1_se0_l1 {
+        mux = <0x21 0x1>;
+        phandle = <0x2d>;
+      };
+      ibi_i3c_qup1_se0_scl {
+        mux = <0x21 0x2>;
+        phandle = <0x2e>;
+      };
+      qup1_se3_l6 {
+        mux = <0x21 0x3>;
+        phandle = <0x2f>;
+      };
+      qup1_se0_l2 {
+        mux = <0x22 0x1>;
+        phandle = <0x30>;
+      };
+      qup1_se3_l5 {
+        mux = <0x22 0x2>;
+        phandle = <0x31>;
+      };
+      qup1_se0_l3 {
+        mux = <0x23 0x1>;
+        phandle = <0x32>;
+      };
+      qup1_se3_l4 {
+        mux = <0x23 0x2>;
+        phandle = <0x33>;
+      };
+      qup1_se1_l0 {
+        mux = <0x24 0x1>;
+        phandle = <0x34>;
+      };
+      ibi_i3c_qup1_se1_sda {
+        mux = <0x24 0x2>;
+        phandle = <0x35>;
+      };
+      qup1_se1_l1 {
+        mux = <0x25 0x1>;
+        phandle = <0x36>;
+      };
+      ibi_i3c_qup1_se1_scl {
+        mux = <0x25 0x2>;
+        phandle = <0x37>;
+      };
+      qup1_se1_l2 {
+        mux = <0x26 0x1>;
+        phandle = <0x38>;
+      };
+      qup1_se1_l3 {
+        mux = <0x27 0x1>;
+        phandle = <0x39>;
+      };
+      qup1_se2_l0 {
+        mux = <0x28 0x1>;
+        phandle = <0x3a>;
+      };
+      qup1_se2_l1 {
+        mux = <0x29 0x1>;
+        phandle = <0x3b>;
+      };
+      qup1_se2_l2 {
+        mux = <0x2a 0x1>;
+        phandle = <0x3c>;
+      };
+      qup1_se2_l3 {
+        mux = <0x2b 0x1>;
+        phandle = <0x3d>;
+      };
+      qup1_se3_l0 {
+        mux = <0x2c 0x1>;
+        phandle = <0x3e>;
+      };
+      qup1_se3_l1 {
+        mux = <0x2d 0x1>;
+        phandle = <0x3f>;
+      };
+      qup1_se3_l2 {
+        mux = <0x2e 0x1>;
+        phandle = <0x40>;
+      };
+      qup1_se3_l3 {
+        mux = <0x2f 0x1>;
+        phandle = <0x41>;
+      };
+      qup1_se4_l0 {
+        mux = <0x30 0x1>;
+        phandle = <0x42>;
+      };
+      qup1_se4_l1 {
+        mux = <0x31 0x1>;
+        phandle = <0x43>;
+      };
+      qup1_se2_l4 {
+        mux = <0x31 0x2>;
+        phandle = <0x44>;
+      };
+      qup1_se4_l2 {
+        mux = <0x32 0x1>;
+        phandle = <0x45>;
+      };
+      qup1_se2_l5 {
+        mux = <0x32 0x2>;
+        phandle = <0x46>;
+      };
+      qup1_se4_l3 {
+        mux = <0x33 0x1>;
+        phandle = <0x47>;
+      };
+      qup1_se2_l6 {
+        mux = <0x33 0x2>;
+        phandle = <0x48>;
+      };
+      qup1_se5_l0 {
+        mux = <0x34 0x1>;
+        phandle = <0x49>;
+      };
+      qup1_se7_l2 {
+        mux = <0x34 0x2>;
+        phandle = <0x4a>;
+      };
+      qup1_se5_l1 {
+        mux = <0x35 0x1>;
+        phandle = <0x4b>;
+      };
+      qup1_se7_l3 {
+        mux = <0x35 0x2>;
+        phandle = <0x4c>;
+      };
+      qup1_se5_l2 {
+        mux = <0x36 0x1>;
+        phandle = <0x4d>;
+      };
+      qup1_se7_l0 {
+        mux = <0x36 0x2>;
+        phandle = <0x4e>;
+      };
+      qup1_se5_l3 {
+        mux = <0x37 0x1>;
+        phandle = <0x4f>;
+      };
+      qup1_se7_l1 {
+        mux = <0x37 0x2>;
+        phandle = <0x50>;
+      };
+      qup1_se6_l0 {
+        mux = <0x38 0x1>;
+        phandle = <0x51>;
+      };
+      qup1_se6_l1 {
+        mux = <0x39 0x1>;
+        phandle = <0x52>;
+      };
+      qup1_se6_l2 {
+        mux = <0x3a 0x1>;
+        phandle = <0x53>;
+      };
+      qup1_se6_l3 {
+        mux = <0x3b 0x1>;
+        phandle = <0x54>;
+      };
+      qup2_se0_l0 {
+        mux = <0x40 0x1>;
+        phandle = <0x55>;
+      };
+      qup2_se0_l1 {
+        mux = <0x41 0x1>;
+        phandle = <0x56>;
+      };
+      qup2_se3_l6 {
+        mux = <0x41 0x2>;
+        phandle = <0x57>;
+      };
+      qup2_se0_l2 {
+        mux = <0x42 0x1>;
+        phandle = <0x58>;
+      };
+      qup2_se3_l5 {
+        mux = <0x42 0x2>;
+        phandle = <0x59>;
+      };
+      qup2_se0_l3 {
+        mux = <0x43 0x1>;
+        phandle = <0x5a>;
+      };
+      qup2_se3_l4 {
+        mux = <0x43 0x2>;
+        phandle = <0x5b>;
+      };
+      qup2_se1_l0 {
+        mux = <0x44 0x1>;
+        phandle = <0x5c>;
+      };
+      ibi_i3c_qup2_se1_sda {
+        mux = <0x44 0x2>;
+        phandle = <0x5d>;
+      };
+      qup2_se1_l1 {
+        mux = <0x45 0x1>;
+        phandle = <0x5e>;
+      };
+      ibi_i3c_qup2_se1_scl {
+        mux = <0x45 0x2>;
+        phandle = <0x5f>;
+      };
+      qup2_se1_l2 {
+        mux = <0x46 0x1>;
+        phandle = <0x60>;
+      };
+      qup2_se1_l3 {
+        mux = <0x47 0x1>;
+        phandle = <0x61>;
+      };
+      qup2_se2_l0 {
+        mux = <0x48 0x1>;
+        phandle = <0x62>;
+      };
+      qup2_se2_l1 {
+        mux = <0x49 0x1>;
+        phandle = <0x63>;
+      };
+      qup2_se2_l2 {
+        mux = <0x4a 0x1>;
+        phandle = <0x64>;
+      };
+      qup2_se2_l3 {
+        mux = <0x4b 0x1>;
+        phandle = <0x65>;
+      };
+      qup2_se3_l0 {
+        mux = <0x4c 0x1>;
+        phandle = <0x66>;
+      };
+      qup2_se3_l1 {
+        mux = <0x4d 0x1>;
+        phandle = <0x67>;
+      };
+      qup2_se3_l2 {
+        mux = <0x4e 0x1>;
+        phandle = <0x68>;
+      };
+      qup2_se3_l3 {
+        mux = <0x4f 0x1>;
+        phandle = <0x69>;
+      };
+      qup2_se4_l0 {
+        mux = <0x50 0x1>;
+        phandle = <0x6a>;
+      };
+      qup2_se4_l1 {
+        mux = <0x51 0x1>;
+        phandle = <0x6b>;
+      };
+      qup2_se2_l4 {
+        mux = <0x51 0x2>;
+        phandle = <0x6c>;
+      };
+      qup2_se4_l2 {
+        mux = <0x52 0x1>;
+        phandle = <0x6d>;
+      };
+      qup2_se2_l5 {
+        mux = <0x52 0x2>;
+        phandle = <0x6e>;
+      };
+      qup2_se4_l3 {
+        mux = <0x53 0x1>;
+        phandle = <0x6f>;
+      };
+      qup2_se2_l6 {
+        mux = <0x53 0x2>;
+        phandle = <0x70>;
+      };
+      qup2_se5_l0 {
+        mux = <0x54 0x1>;
+        phandle = <0x71>;
+      };
+      qup2_se7_l2 {
+        mux = <0x54 0x2>;
+        phandle = <0x72>;
+      };
+      qup2_se5_l1 {
+        mux = <0x55 0x1>;
+        phandle = <0x73>;
+      };
+      qup2_se7_l3 {
+        mux = <0x55 0x2>;
+        phandle = <0x74>;
+      };
+      qup2_se5_l2 {
+        mux = <0x56 0x1>;
+        phandle = <0x75>;
+      };
+      qup2_se7_l0 {
+        mux = <0x56 0x2>;
+        phandle = <0x76>;
+      };
+      qup2_se5_l3 {
+        mux = <0x57 0x1>;
+        phandle = <0x77>;
+      };
+      qup2_se7_l1 {
+        mux = <0x57 0x2>;
+        phandle = <0x78>;
+      };
+      qup2_se6_l0 {
+        mux = <0x58 0x1>;
+        phandle = <0x79>;
+      };
+      qup2_se6_l1 {
+        mux = <0x59 0x1>;
+        phandle = <0x7a>;
+      };
+      qup2_se6_l2 {
+        mux = <0x5a 0x1>;
+        phandle = <0x7b>;
+      };
+      qup2_se6_l3 {
+        mux = <0x5b 0x1>;
+        phandle = <0x7c>;
+      };
+      cci_i2c_sda0 {
+        mux = <0x65 0x1>;
+        phandle = <0x7d>;
+      };
+      cci_i2c_scl0 {
+        mux = <0x66 0x1>;
+        phandle = <0x7e>;
+      };
+      cci_i2c_sda1 {
+        mux = <0x67 0x1>;
+        phandle = <0x7f>;
+      };
+      cci_i2c_scl1 {
+        mux = <0x68 0x1>;
+        phandle = <0x80>;
+      };
+      cci_i2c_sda2 {
+        mux = <0x69 0x1>;
+        phandle = <0x81>;
+      };
+      cci_i2c_scl2 {
+        mux = <0x6a 0x1>;
+        phandle = <0x82>;
+      };
+      qspi0_clk {
+        mux = <0x7f 0x1>;
+        phandle = <0x83>;
+      };
+      qspi0_data_0 {
+        mux = <0x80 0x1>;
+        phandle = <0x84>;
+      };
+      qspi0_data_1 {
+        mux = <0x81 0x1>;
+        phandle = <0x85>;
+      };
+      qspi0_data_2 {
+        mux = <0x82 0x1>;
+        phandle = <0x86>;
+      };
+      qspi0_data_3 {
+        mux = <0x83 0x1>;
+        phandle = <0x87>;
+      };
+      qspi0_cs0_n {
+        mux = <0x84 0x1>;
+        phandle = <0x88>;
+      };
+      qspi0_cs1_n {
+        mux = <0x85 0x1>;
+        phandle = <0x89>;
+      };
+      aon_cci_i2c_sda3 {
+        mux = <0xeb 0x1>;
+        phandle = <0x8a>;
+      };
+      aon_cci_i2c_scl3 {
+        mux = <0xec 0x1>;
+        phandle = <0x8b>;
+      };
+    };
+  };
+  sw {
+    phandle = <0x8c>;
+    core {
+      cpt_boot_test {
+        test_config = [000000050000006000000700];
+        test_bool1 = ;
+        test_bool2 = <0x1>;
+        test1 {
+          test_ver = <0x11>;
+          test_uint8_list = [000000040000000500000006];
+          test_uint32 = <0x4>;
+          test_uint32_list = [000000010000000200000003];
+          test_bool1 = ;
+          test_bool2 = <0x1>;
+          test_string = "My Secret Message, Please keep it secret!";
+        };
+        test2 {
+        };
+        test_types {
+          test_uint8 = <0xf5>;
+          test_uint8_list = [000000f5000000b3000000a1];
+          test_uint16 = <0xf5f3>;
+          test_uint16_list = [0000f5f30000b5b30000a5a3];
+          test_uint32 = <0xf3f5f7f9>;
+          test_uint32_list = [f3f5f7f9b3b5b7b9a3a5a7a9];
+        };
+        test_pic_3 {
+          compatible = "qcom,pic";
+          reg_alt = <0x100 0x20>;
+        };
+        test_uart1 {
+          compatible = "qcom,uart";
+          reg_alt = [000010000000002000010000000001000001800000000100];
+          reg-names = "base", "rx", "tx";
+        };
+        test_uart2 {
+          compatible = "qcom,uart";
+          reg_alt = <0x2000 0x20>;
+        };
+        PD_Access_control {
+          PD_indicator = <0x1000>;
+        };
+        OEM_Flavor_Validation {
+          test_oem_entry = <0x1000>;
+        };
+      };
+    };
+  };
+  __symbols__ {
+    soc = "/soc";
+    tlmm = "/soc/pinctrl@f100000";
+    qup0_se0_l0 = "/soc/pinctrl@f100000/qup0_se0_l0";
+    ibi_i3c_qup0_se0_sda = "/soc/pinctrl@f100000/ibi_i3c_qup0_se0_sda";
+    qup0_se0_l1 = "/soc/pinctrl@f100000/qup0_se0_l1";
+    ibi_i3c_qup0_se0_scl = "/soc/pinctrl@f100000/ibi_i3c_qup0_se0_scl";
+    qup0_se0_l2 = "/soc/pinctrl@f100000/qup0_se0_l2";
+    qup0_se0_l3 = "/soc/pinctrl@f100000/qup0_se0_l3";
+    qup0_se1_l0 = "/soc/pinctrl@f100000/qup0_se1_l0";
+    qup0_se1_l1 = "/soc/pinctrl@f100000/qup0_se1_l1";
+    qup0_se1_l2 = "/soc/pinctrl@f100000/qup0_se1_l2";
+    qup0_se1_l3 = "/soc/pinctrl@f100000/qup0_se1_l3";
+    qup0_se2_l0 = "/soc/pinctrl@f100000/qup0_se2_l0";
+    qup0_se2_l1 = "/soc/pinctrl@f100000/qup0_se2_l1";
+    qup0_se2_l2 = "/soc/pinctrl@f100000/qup0_se2_l2";
+    qup0_se2_l3 = "/soc/pinctrl@f100000/qup0_se2_l3";
+    qup0_se3_l0 = "/soc/pinctrl@f100000/qup0_se3_l0";
+    qup0_se7_l2 = "/soc/pinctrl@f100000/qup0_se7_l2";
+    qup0_se3_l1 = "/soc/pinctrl@f100000/qup0_se3_l1";
+    qup0_se7_l3 = "/soc/pinctrl@f100000/qup0_se7_l3";
+    qup0_se3_l2 = "/soc/pinctrl@f100000/qup0_se3_l2";
+    qup0_se7_l0 = "/soc/pinctrl@f100000/qup0_se7_l0";
+    qup0_se3_l3 = "/soc/pinctrl@f100000/qup0_se3_l3";
+    qup0_se7_l1 = "/soc/pinctrl@f100000/qup0_se7_l1";
+    qup0_se4_l0 = "/soc/pinctrl@f100000/qup0_se4_l0";
+    qup0_se4_l1 = "/soc/pinctrl@f100000/qup0_se4_l1";
+    qup0_se2_l4 = "/soc/pinctrl@f100000/qup0_se2_l4";
+    qup0_se4_l2 = "/soc/pinctrl@f100000/qup0_se4_l2";
+    qup0_se2_l5 = "/soc/pinctrl@f100000/qup0_se2_l5";
+    qup0_se4_l3 = "/soc/pinctrl@f100000/qup0_se4_l3";
+    qup0_se2_l6 = "/soc/pinctrl@f100000/qup0_se2_l6";
+    qup0_se5_l0 = "/soc/pinctrl@f100000/qup0_se5_l0";
+    qup0_se5_l1 = "/soc/pinctrl@f100000/qup0_se5_l1";
+    qup0_se3_l6 = "/soc/pinctrl@f100000/qup0_se3_l6";
+    qup0_se5_l2 = "/soc/pinctrl@f100000/qup0_se5_l2";
+    qup0_se3_l5 = "/soc/pinctrl@f100000/qup0_se3_l5";
+    qup0_se5_l3 = "/soc/pinctrl@f100000/qup0_se5_l3";
+    qup0_se3_l4 = "/soc/pinctrl@f100000/qup0_se3_l4";
+    qup0_se6_l0 = "/soc/pinctrl@f100000/qup0_se6_l0";
+    qup0_se6_l1 = "/soc/pinctrl@f100000/qup0_se6_l1";
+    qup0_se6_l2 = "/soc/pinctrl@f100000/qup0_se6_l2";
+    qup0_se6_l3 = "/soc/pinctrl@f100000/qup0_se6_l3";
+    qup1_se0_l0 = "/soc/pinctrl@f100000/qup1_se0_l0";
+    ibi_i3c_qup1_se0_sda = "/soc/pinctrl@f100000/ibi_i3c_qup1_se0_sda";
+    qup1_se0_l1 = "/soc/pinctrl@f100000/qup1_se0_l1";
+    ibi_i3c_qup1_se0_scl = "/soc/pinctrl@f100000/ibi_i3c_qup1_se0_scl";
+    qup1_se3_l6 = "/soc/pinctrl@f100000/qup1_se3_l6";
+    qup1_se0_l2 = "/soc/pinctrl@f100000/qup1_se0_l2";
+    qup1_se3_l5 = "/soc/pinctrl@f100000/qup1_se3_l5";
+    qup1_se0_l3 = "/soc/pinctrl@f100000/qup1_se0_l3";
+    qup1_se3_l4 = "/soc/pinctrl@f100000/qup1_se3_l4";
+    qup1_se1_l0 = "/soc/pinctrl@f100000/qup1_se1_l0";
+    ibi_i3c_qup1_se1_sda = "/soc/pinctrl@f100000/ibi_i3c_qup1_se1_sda";
+    qup1_se1_l1 = "/soc/pinctrl@f100000/qup1_se1_l1";
+    ibi_i3c_qup1_se1_scl = "/soc/pinctrl@f100000/ibi_i3c_qup1_se1_scl";
+    qup1_se1_l2 = "/soc/pinctrl@f100000/qup1_se1_l2";
+    qup1_se1_l3 = "/soc/pinctrl@f100000/qup1_se1_l3";
+    qup1_se2_l0 = "/soc/pinctrl@f100000/qup1_se2_l0";
+    qup1_se2_l1 = "/soc/pinctrl@f100000/qup1_se2_l1";
+    qup1_se2_l2 = "/soc/pinctrl@f100000/qup1_se2_l2";
+    qup1_se2_l3 = "/soc/pinctrl@f100000/qup1_se2_l3";
+    qup1_se3_l0 = "/soc/pinctrl@f100000/qup1_se3_l0";
+    qup1_se3_l1 = "/soc/pinctrl@f100000/qup1_se3_l1";
+    qup1_se3_l2 = "/soc/pinctrl@f100000/qup1_se3_l2";
+    qup1_se3_l3 = "/soc/pinctrl@f100000/qup1_se3_l3";
+    qup1_se4_l0 = "/soc/pinctrl@f100000/qup1_se4_l0";
+    qup1_se4_l1 = "/soc/pinctrl@f100000/qup1_se4_l1";
+    qup1_se2_l4 = "/soc/pinctrl@f100000/qup1_se2_l4";
+    qup1_se4_l2 = "/soc/pinctrl@f100000/qup1_se4_l2";
+    qup1_se2_l5 = "/soc/pinctrl@f100000/qup1_se2_l5";
+    qup1_se4_l3 = "/soc/pinctrl@f100000/qup1_se4_l3";
+    qup1_se2_l6 = "/soc/pinctrl@f100000/qup1_se2_l6";
+    qup1_se5_l0 = "/soc/pinctrl@f100000/qup1_se5_l0";
+    qup1_se7_l2 = "/soc/pinctrl@f100000/qup1_se7_l2";
+    qup1_se5_l1 = "/soc/pinctrl@f100000/qup1_se5_l1";
+    qup1_se7_l3 = "/soc/pinctrl@f100000/qup1_se7_l3";
+    qup1_se5_l2 = "/soc/pinctrl@f100000/qup1_se5_l2";
+    qup1_se7_l0 = "/soc/pinctrl@f100000/qup1_se7_l0";
+    qup1_se5_l3 = "/soc/pinctrl@f100000/qup1_se5_l3";
+    qup1_se7_l1 = "/soc/pinctrl@f100000/qup1_se7_l1";
+    qup1_se6_l0 = "/soc/pinctrl@f100000/qup1_se6_l0";
+    qup1_se6_l1 = "/soc/pinctrl@f100000/qup1_se6_l1";
+    qup1_se6_l2 = "/soc/pinctrl@f100000/qup1_se6_l2";
+    qup1_se6_l3 = "/soc/pinctrl@f100000/qup1_se6_l3";
+    qup2_se0_l0 = "/soc/pinctrl@f100000/qup2_se0_l0";
+    qup2_se0_l1 = "/soc/pinctrl@f100000/qup2_se0_l1";
+    qup2_se3_l6 = "/soc/pinctrl@f100000/qup2_se3_l6";
+    qup2_se0_l2 = "/soc/pinctrl@f100000/qup2_se0_l2";
+    qup2_se3_l5 = "/soc/pinctrl@f100000/qup2_se3_l5";
+    qup2_se0_l3 = "/soc/pinctrl@f100000/qup2_se0_l3";
+    qup2_se3_l4 = "/soc/pinctrl@f100000/qup2_se3_l4";
+    qup2_se1_l0 = "/soc/pinctrl@f100000/qup2_se1_l0";
+    ibi_i3c_qup2_se1_sda = "/soc/pinctrl@f100000/ibi_i3c_qup2_se1_sda";
+    qup2_se1_l1 = "/soc/pinctrl@f100000/qup2_se1_l1";
+    ibi_i3c_qup2_se1_scl = "/soc/pinctrl@f100000/ibi_i3c_qup2_se1_scl";
+    qup2_se1_l2 = "/soc/pinctrl@f100000/qup2_se1_l2";
+    qup2_se1_l3 = "/soc/pinctrl@f100000/qup2_se1_l3";
+    qup2_se2_l0 = "/soc/pinctrl@f100000/qup2_se2_l0";
+    qup2_se2_l1 = "/soc/pinctrl@f100000/qup2_se2_l1";
+    qup2_se2_l2 = "/soc/pinctrl@f100000/qup2_se2_l2";
+    qup2_se2_l3 = "/soc/pinctrl@f100000/qup2_se2_l3";
+    qup2_se3_l0 = "/soc/pinctrl@f100000/qup2_se3_l0";
+    qup2_se3_l1 = "/soc/pinctrl@f100000/qup2_se3_l1";
+    qup2_se3_l2 = "/soc/pinctrl@f100000/qup2_se3_l2";
+    qup2_se3_l3 = "/soc/pinctrl@f100000/qup2_se3_l3";
+    qup2_se4_l0 = "/soc/pinctrl@f100000/qup2_se4_l0";
+    qup2_se4_l1 = "/soc/pinctrl@f100000/qup2_se4_l1";
+    qup2_se2_l4 = "/soc/pinctrl@f100000/qup2_se2_l4";
+    qup2_se4_l2 = "/soc/pinctrl@f100000/qup2_se4_l2";
+    qup2_se2_l5 = "/soc/pinctrl@f100000/qup2_se2_l5";
+    qup2_se4_l3 = "/soc/pinctrl@f100000/qup2_se4_l3";
+    qup2_se2_l6 = "/soc/pinctrl@f100000/qup2_se2_l6";
+    qup2_se5_l0 = "/soc/pinctrl@f100000/qup2_se5_l0";
+    qup2_se7_l2 = "/soc/pinctrl@f100000/qup2_se7_l2";
+    qup2_se5_l1 = "/soc/pinctrl@f100000/qup2_se5_l1";
+    qup2_se7_l3 = "/soc/pinctrl@f100000/qup2_se7_l3";
+    qup2_se5_l2 = "/soc/pinctrl@f100000/qup2_se5_l2";
+    qup2_se7_l0 = "/soc/pinctrl@f100000/qup2_se7_l0";
+    qup2_se5_l3 = "/soc/pinctrl@f100000/qup2_se5_l3";
+    qup2_se7_l1 = "/soc/pinctrl@f100000/qup2_se7_l1";
+    qup2_se6_l0 = "/soc/pinctrl@f100000/qup2_se6_l0";
+    qup2_se6_l1 = "/soc/pinctrl@f100000/qup2_se6_l1";
+    qup2_se6_l2 = "/soc/pinctrl@f100000/qup2_se6_l2";
+    qup2_se6_l3 = "/soc/pinctrl@f100000/qup2_se6_l3";
+    cci_i2c_sda0 = "/soc/pinctrl@f100000/cci_i2c_sda0";
+    cci_i2c_scl0 = "/soc/pinctrl@f100000/cci_i2c_scl0";
+    cci_i2c_sda1 = "/soc/pinctrl@f100000/cci_i2c_sda1";
+    cci_i2c_scl1 = "/soc/pinctrl@f100000/cci_i2c_scl1";
+    cci_i2c_sda2 = "/soc/pinctrl@f100000/cci_i2c_sda2";
+    cci_i2c_scl2 = "/soc/pinctrl@f100000/cci_i2c_scl2";
+    qspi0_clk = "/soc/pinctrl@f100000/qspi0_clk";
+    qspi0_data_0 = "/soc/pinctrl@f100000/qspi0_data_0";
+    qspi0_data_1 = "/soc/pinctrl@f100000/qspi0_data_1";
+    qspi0_data_2 = "/soc/pinctrl@f100000/qspi0_data_2";
+    qspi0_data_3 = "/soc/pinctrl@f100000/qspi0_data_3";
+    qspi0_cs0_n = "/soc/pinctrl@f100000/qspi0_cs0_n";
+    qspi0_cs1_n = "/soc/pinctrl@f100000/qspi0_cs1_n";
+    aon_cci_i2c_sda3 = "/soc/pinctrl@f100000/aon_cci_i2c_sda3";
+    aon_cci_i2c_scl3 = "/soc/pinctrl@f100000/aon_cci_i2c_scl3";
+    sw = "/sw";
+  };
+};

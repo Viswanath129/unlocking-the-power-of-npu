@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snapdragon NPU | Hexagon v73 Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #121214;
+      --bg-sidebar: #18181b;
+      --bg-card: #202024;
+      --bg-chat-user: #27272a;
+      --bg-chat-ai: #18181b;
+      --border-color: #2e2e33;
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent: #0070f3;
+      --accent-glow: rgba(0, 112, 243, 0.35);
+      --qualcomm-red: #e11900;
+      --npu-green: #10b981;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 280px;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-header {
+      padding: 18px 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-chip {
+      background: linear-gradient(135deg, #e11900 0%, #ff4b2b 100%);
+      color: white;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .app-title {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .new-chat-btn {
+      margin: 14px 16px;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .new-chat-btn:hover {
+      background: #27272a;
+      border-color: #3f3f46;
+    }
+
+    .chat-history {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 12px;
+    }
+
+    .history-item {
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-item.active, .history-item:hover {
+      background-color: var(--bg-card);
+      color: var(--text-main);
+    }
+
+    .hw-widget {
+      padding: 16px;
+      border-top: 1px solid var(--border-color);
+      background-color: #141416;
+      font-size: 12px;
+    }
+
+    .hw-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hw-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      color: #d4d4d8;
+    }
+
+    .ram-bar-container {
+      width: 100%;
+      height: 6px;
+      background: #27272a;
+      border-radius: 3px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+
+    .ram-bar-fill {
+      height: 100%;
+      background: var(--npu-green);
+      width: 40%;
+      transition: width 0.3s ease;
+    }
+
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .top-bar {
+      height: 56px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      background-color: rgba(18, 18, 20, 0.8);
+      backdrop-filter: blur(12px);
+      z-index: 10;
+    }
+
+    .model-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .npu-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--npu-green);
+      font-weight: 500;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      background-color: var(--npu-green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--npu-green);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    .stream-telemetry {
+      background: #18181b;
+      border-bottom: 1px solid var(--border-color);
+      padding: 6px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .layer-progress-bar {
+      width: 140px;
+      height: 4px;
+      background: #27272a;
+      border-radius: 2px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+
+    .layer-progress-fill {
+      height: 100%;
+      background: #0070f3;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .message {
+      display: flex;
+      gap: 16px;
+      max-width: 820px;
+      width: 100%;
+      margin: 0 auto;
+      line-height: 1.6;
+      font-size: 14.5px;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .avatar.user {
+      background: #3f3f46;
+      color: white;
+    }
+
+    .avatar.ai {
+      background: linear-gradient(135deg, #0070f3, #00d4ff);
+      color: white;
+      box-shadow: 0 0 12px rgba(0, 112, 243, 0.4);
+    }
+
+    .msg-content {
+      flex: 1;
+      overflow-wrap: break-word;
+    }
+
+    .msg-content p {
+      margin-bottom: 10px;
+    }
+
+    .msg-content code {
+      font-family: var(--font-mono);
+      background: #27272a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .msg-content pre {
+      background: #18181b;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      margin: 12px 0;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+
+    .empty-state {
+      margin: auto;
+      text-align: center;
+      max-width: 580px;
+    }
+
+    .empty-state h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #ffffff 40%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .empty-state p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .prompt-suggestions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      text-align: left;
+    }
+
+    .suggestion-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .suggestion-card:hover {
+      background: #27272a;
+      border-color: #3f3f46;
+      transform: translateY(-1px);
+    }
+
+    .suggestion-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .suggestion-desc {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .input-section {
+      padding: 16px 24px 20px;
+      background: var(--bg-dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .input-box {
+      max-width: 820px;
+      width: 100%;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      transition: border-color 0.2s;
+    }
+
+    .input-box:focus-within {
+      border-color: #52525b;
+    }
+
+    textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 14.5px;
+      resize: none;
+      outline: none;
+      max-height: 160px;
+      line-height: 1.5;
+    }
+
+    .input-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .input-meta {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .send-btn {
+      background-color: var(--text-main);
+      color: #121214;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .send-btn:hover {
+      opacity: 0.85;
+    }
+
+    .send-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .footer-note {
+      font-size: 11px;
+      color: #71717a;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span class="badge-chip">NPU</span>
+      <div class="app-title">Snapdragon NPU</div>
+    </div>
+
+    <button class="new-chat-btn" onclick="startNewChat()">
+      <span>+ New Chat</span>
+      <span style="font-size: 11px; color: var(--text-muted);">Ctrl + N</span>
+    </button>
+
+    <div class="chat-history">
+      <div class="history-item active">
+        <span>💬</span>
+        <span>Qwen-2.5-72B Session</span>
+      </div>
+      <div class="history-item">
+        <span>💬</span>
+        <span>Hexagon v73 Architecture</span>
+      </div>
+    </div>
+
+    <div class="hw-widget">
+      <div class="hw-title">
+        <span>NPU Hardware Telemetry</span>
+        <span style="color: var(--npu-green);">● Active</span>
+      </div>
+      <div class="hw-row">
+        <span>SoC:</span>
+        <span style="font-weight: 500;">Snapdragon X Plus</span>
+      </div>
+      <div class="hw-row">
+        <span>Compute Unit:</span>
+        <span>Hexagon v73 (45 TOPS)</span>
+      </div>
+      <div class="hw-row">
+        <span>FastRPC Ring:</span>
+        <span>Dual Ping-Pong (Zero-Copy)</span>
+      </div>
+      <div class="hw-row">
+        <span>Process RAM:</span>
+        <span id="ramUsageVal">340 MB</span>
+      </div>
+      <div class="ram-bar-container">
+        <div class="ram-bar-fill" id="ramBarFill"></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-container">
+    <header class="top-bar">
+      <div class="model-selector">
+        <span>Qwen/Qwen2.5-72B-Instruct</span>
+        <span style="font-size: 11px; background: #27272a; padding: 2px 6px; border-radius: 4px; color: #a1a1aa;">INT4 Crouton</span>
+      </div>
+      <div class="npu-status-pill">
+        <div class="pulse-dot"></div>
+        <span>Hexagon NPU Accelerated</span>
+      </div>
+    </header>
+
+    <div class="stream-telemetry">
+      <div>
+        <span>NPU Layer Stream: </span>
+        <span id="layerStreamingStatus">Idle (Template Ready)</span>
+        <div class="layer-progress-bar">
+          <div class="layer-progress-fill" id="layerProgressFill"></div>
+        </div>
+      </div>
+      <div>
+        <span>KV Memory: </span>
+        <span id="kvCacheMem">0.0 MB</span>
+        <span style="margin-left: 12px;">Engine Speed: </span>
+        <span id="speedDisplay" style="color: var(--text-main); font-weight: 600;">-- tok/s</span>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="empty-state" id="emptyState">
+        <h1>Qwen-2.5-72B on Snapdragon NPU</h1>
+        <p>Running a 72-billion parameter model on your 16GB laptop via zero-copy FastRPC layer streaming across the Hexagon v73 NPU.</p>
+
+        <div class="prompt-suggestions">
+          <div class="suggestion-card" onclick="usePrompt('Explain the Crouton tensor format on Qualcomm Hexagon NPU.')">
+            <div class="suggestion-title">Qualcomm Crouton Format</div>
+            <div class="suggestion-desc">How 128-byte micro-tiling prevents VTCM bank conflicts.</div>
+          </div>
+          <div class="suggestion-card" onclick="usePrompt('How can a 72B model run with only 16GB of laptop RAM?')">
+            <div class="suggestion-title">NPU Layer Streaming</div>
+            <div class="suggestion-desc">Single-layer template engine & FastRPC memory swapping.</div>
+          </div>
+          <div class="suggestion-card" onclick="usePrompt('Write a Python function to parallelize matrix multiplication.')">
+            <div class="suggestion-title">Code Generation</div>
+            <div class="suggestion-desc">Generate clean, idiomatic algorithms.</div>
+          </div>
+          <div class="suggestion-card" onclick="usePrompt('What makes the Hexagon v73 HMX systolic array fast?')">
+            <div class="suggestion-title">Hexagon Hardware Acceleration</div>
+            <div class="suggestion-desc">INT4 sub-byte math and 2:4 structured sparsity.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-section">
+      <div class="input-box">
+        <textarea id="promptInput" rows="1" placeholder="Message Qwen-2.5-72B on Qualcomm NPU..." oninput="autoResize(this)" onkeydown="handleKeyDown(event)"></textarea>
+        <div class="input-actions">
+          <span class="input-meta">Snapdragon NPU Streamer v2.0 • Unified Memory</span>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"></line>
+              <polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="footer-note">Runs 70B+ LLMs locally with zero cloud dependencies and minimal RAM footprint.</div>
+    </div>
+  </main>
+
+  <script>
+    const chatMessages = document.getElementById('chatMessages');
+    const emptyState = document.getElementById('emptyState');
+    const promptInput = document.getElementById('promptInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const ramUsageVal = document.getElementById('ramUsageVal');
+    const ramBarFill = document.getElementById('ramBarFill');
+    const layerStreamingStatus = document.getElementById('layerStreamingStatus');
+    const layerProgressFill = document.getElementById('layerProgressFill');
+    const kvCacheMem = document.getElementById('kvCacheMem');
+    const speedDisplay = document.getElementById('speedDisplay');
+
+    let isGenerating = false;
+
+    setInterval(async () => {
+      try {
+        const res = await fetch('/api/system/stats');
+        const data = await res.json();
+        ramUsageVal.innerText = `${data.process_mb} MB (${data.percent}% Sys)`;
+        ramBarFill.style.width = `${Math.min(data.percent, 100)}%`;
+      } catch (e) {}
+    }, 2000);
+
+    function autoResize(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = (textarea.scrollHeight) + 'px';
+    }
+
+    function handleKeyDown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function usePrompt(text) {
+      promptInput.value = text;
+      autoResize(promptInput);
+      sendMessage();
+    }
+
+    function startNewChat() {
+      chatMessages.innerHTML = '';
+      chatMessages.appendChild(emptyState);
+      emptyState.style.display = 'block';
+      fetch('/api/chat/reset', { method: 'POST' });
+    }
+
+    function appendMessage(role, text) {
+      if (emptyState) emptyState.style.display = 'none';
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message';
+
+      const avatar = document.createElement('div');
+      avatar.className = `avatar ${role}`;
+      avatar.innerText = role === 'user' ? 'U' : 'Q';
+
+      const content = document.createElement('div');
+      content.className = 'msg-content';
+      content.innerHTML = formatMarkdown(text);
+
+      msgDiv.appendChild(avatar);
+      msgDiv.appendChild(content);
+      chatMessages.appendChild(msgDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return content;
+    }
+
+    function formatMarkdown(text) {
+      let formatted = text
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+      return formatted;
+    }
+
+    async function sendMessage() {
+      const text = promptInput.value.trim();
+      if (!text || isGenerating) return;
+
+      isGenerating = true;
+      sendBtn.disabled = true;
+      promptInput.value = '';
+      promptInput.style.height = 'auto';
+
+      appendMessage('user', text);
+      const aiContentDiv = appendMessage('ai', '');
+      aiContentDiv.innerHTML = '<span style="color: var(--text-muted)">Connecting to Hexagon NPU...</span>';
+
+      try {
+        const response = await fetch('/api/chat/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: text })
+        });
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullResponse = '';
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.substring(6));
+                if (data.token) {
+                  fullResponse += data.token;
+                  aiContentDiv.innerHTML = formatMarkdown(fullResponse);
+                  chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+                if (data.layer_progress) {
+                  layerStreamingStatus.innerText = `Layer ${data.current_layer}/${data.total_layers} [FastRPC]`;
+                  const pct = (data.current_layer / data.total_layers) * 100;
+                  layerProgressFill.style.width = `${pct}%`;
+                }
+                if (data.speed) {
+                  speedDisplay.innerText = `${data.speed} tok/s`;
+                }
+                if (data.kv_bytes) {
+                  kvCacheMem.innerText = `${(data.kv_bytes / (1024*1024)).toFixed(1)} MB`;
+                }
+              } catch (e) {}
+            }
+          }
+        }
+      } catch (err) {
+        aiContentDiv.innerHTML = `<span style="color: #ef4444;">Error connecting to NPU stream: ${err.message}</span>`;
+      } finally {
+        isGenerating = false;
+        sendBtn.disabled = false;
+        layerStreamingStatus.innerText = 'Idle (Template Ready)';
+        layerProgressFill.style.width = '0%';
+      }
+    }
+  </script>
+</body>
+</html>
