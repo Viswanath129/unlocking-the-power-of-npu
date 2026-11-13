@@ -3,26 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Snapdragon NPU | Hexagon v73 Chat</title>
+  <title>ChatGPT | Google Gemma 4 31B on Snapdragon NPU</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Markdown & Code highlighting libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
   <style>
     :root {
-      --bg-dark: #121214;
-      --bg-sidebar: #18181b;
-      --bg-card: #202024;
-      --bg-chat-user: #27272a;
-      --bg-chat-ai: #18181b;
-      --border-color: #2e2e33;
-      --text-main: #f4f4f5;
-      --text-muted: #a1a1aa;
-      --accent: #0070f3;
-      --accent-glow: rgba(0, 112, 243, 0.35);
+      --bg-chat: #212121;
+      --bg-sidebar: #171717;
+      --bg-sidebar-hover: #212121;
+      --bg-input: #2f2f2f;
+      --bg-bubble-user: #2f2f2f;
+      --border-subtle: #303030;
+      --border-focus: #505050;
+      --text-primary: #ececec;
+      --text-secondary: #b4b4b4;
+      --text-muted: #737373;
+      --accent-green: #10a37f;
+      --accent-npu: #10b981;
+      --accent-gemma: #4285f4;
       --qualcomm-red: #e11900;
-      --npu-green: #10b981;
-      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-code: 'JetBrains Mono', Consolas, Monaco, monospace;
     }
 
     * {
@@ -32,641 +39,1027 @@
     }
 
     body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      font-family: var(--font-sans);
+      background-color: var(--bg-chat);
+      color: var(--text-primary);
+      font-family: var(--font-main);
       display: flex;
       height: 100vh;
+      width: 100vw;
       overflow: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
+    /* ================= SIDEBAR ================= */
     .sidebar {
-      width: 280px;
+      width: 260px;
       background-color: var(--bg-sidebar);
-      border-right: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
-      transition: all 0.2s ease;
+      border-right: 1px solid var(--border-subtle);
+      transition: width 0.25s ease, transform 0.25s ease;
+      z-index: 40;
     }
 
-    .sidebar-header {
-      padding: 18px 16px;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    .sidebar.collapsed {
+      width: 0;
+      transform: translateX(-100%);
+      overflow: hidden;
+      border-right: none;
     }
 
-    .badge-chip {
-      background: linear-gradient(135deg, #e11900 0%, #ff4b2b 100%);
-      color: white;
-      font-weight: 700;
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 6px;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-
-    .app-title {
-      font-size: 15px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .new-chat-btn {
-      margin: 14px 16px;
-      padding: 10px 14px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      border-radius: 8px;
-      font-size: 13.5px;
-      font-weight: 500;
+    .sidebar-top {
+      padding: 12px 14px 8px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+    }
+
+    .new-chat-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 13.5px;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: background 0.15s;
     }
 
     .new-chat-btn:hover {
-      background: #27272a;
-      border-color: #3f3f46;
+      background: var(--bg-sidebar-hover);
     }
 
-    .chat-history {
-      flex: 1;
-      overflow-y: auto;
-      padding: 8px 12px;
-    }
-
-    .history-item {
-      padding: 10px 12px;
-      border-radius: 6px;
-      font-size: 13px;
-      color: var(--text-muted);
+    .sidebar-icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 8px;
+      border-radius: 8px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      margin-left: 6px;
+    }
+
+    .sidebar-icon-btn:hover {
+      background: var(--bg-sidebar-hover);
+      color: var(--text-primary);
+    }
+
+    .chat-history-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 10px;
+    }
+
+    .history-group-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 12px 10px 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 10px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      color: var(--text-primary);
+      cursor: pointer;
+      margin-bottom: 2px;
       transition: background 0.15s;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .history-item.active, .history-item:hover {
-      background-color: var(--bg-card);
-      color: var(--text-main);
+    .history-item:hover, .history-item.active {
+      background: var(--bg-sidebar-hover);
     }
 
-    .hw-widget {
-      padding: 16px;
-      border-top: 1px solid var(--border-color);
-      background-color: #141416;
+    .history-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    /* Model Download & NPU Card in Sidebar */
+    .sidebar-widget {
+      padding: 12px 14px;
+      border-top: 1px solid var(--border-subtle);
+      background: #141414;
       font-size: 12px;
     }
 
-    .hw-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      letter-spacing: 0.8px;
-      margin-bottom: 10px;
+    .widget-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
     }
 
-    .hw-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 6px;
-      color: #d4d4d8;
+    .status-pill-npu {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-npu);
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-size: 10.5px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
-    .ram-bar-container {
+    .progress-bar-bg {
       width: 100%;
-      height: 6px;
-      background: #27272a;
+      height: 5px;
+      background: #2a2a2a;
       border-radius: 3px;
-      margin-top: 6px;
+      margin: 6px 0;
       overflow: hidden;
     }
 
-    .ram-bar-fill {
+    .progress-bar-fill {
       height: 100%;
-      background: var(--npu-green);
-      width: 40%;
+      background: linear-gradient(90deg, #4285f4, #10b981);
+      width: 0%;
       transition: width 0.3s ease;
     }
 
-    .main-container {
+    .user-footer {
+      padding: 12px 14px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e11900, #ff5722);
+      color: white;
+      font-weight: 600;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-info {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+
+    .user-badge {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ================= MAIN CHAT AREA ================= */
+    .main-canvas {
       flex: 1;
       display: flex;
       flex-direction: column;
       position: relative;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    .top-bar {
-      height: 56px;
-      border-bottom: 1px solid var(--border-color);
+    .chat-header {
+      height: 52px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 24px;
-      background-color: rgba(18, 18, 20, 0.8);
-      backdrop-filter: blur(12px);
-      z-index: 10;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(33, 33, 33, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 30;
     }
 
-    .model-selector {
+    .header-left {
       display: flex;
       align-items: center;
       gap: 10px;
-      font-size: 14px;
-      font-weight: 600;
     }
 
-    .npu-status-pill {
+    .model-badge-btn {
       display: flex;
       align-items: center;
       gap: 6px;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      color: var(--npu-green);
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+
+    .model-badge-btn:hover {
+      background: var(--bg-input);
+    }
+
+    .model-version-chip {
+      font-size: 11px;
       font-weight: 500;
+      background: rgba(66, 133, 244, 0.18);
+      color: #8ab4f8;
+      border: 1px solid rgba(66, 133, 244, 0.35);
+      padding: 2px 7px;
+      border-radius: 12px;
     }
 
-    .pulse-dot {
-      width: 7px;
-      height: 7px;
-      background-color: var(--npu-green);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--npu-green);
-      animation: pulse 1.8s infinite;
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
     }
 
-    @keyframes pulse {
-      0% { opacity: 0.4; }
-      50% { opacity: 1; }
-      100% { opacity: 0.4; }
+    .telemetry-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #181818;
+      border: 1px solid var(--border-subtle);
+      padding: 4px 10px;
+      border-radius: 14px;
+      font-family: var(--font-code);
+      font-size: 11.5px;
     }
 
-    .stream-telemetry {
-      background: #18181b;
-      border-bottom: 1px solid var(--border-color);
-      padding: 6px 24px;
+    /* Stream Telemetry Ticker */
+    .stream-ticker {
+      background: #191919;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 5px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 11.5px;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-family: var(--font-code);
     }
 
-    .layer-progress-bar {
-      width: 140px;
-      height: 4px;
-      background: #27272a;
-      border-radius: 2px;
-      overflow: hidden;
+    .layer-mini-bar {
       display: inline-block;
+      width: 120px;
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+      margin: 0 8px;
       vertical-align: middle;
-      margin-left: 8px;
+      overflow: hidden;
     }
 
-    .layer-progress-fill {
+    .layer-mini-fill {
       height: 100%;
-      background: #0070f3;
+      background: var(--accent-gemma);
       width: 0%;
       transition: width 0.1s linear;
     }
 
-    .chat-messages {
+    /* Chat Messages */
+    .chat-scroll {
       flex: 1;
       overflow-y: auto;
-      padding: 24px;
+      padding: 24px 20px 140px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 24px;
+      scroll-behavior: smooth;
     }
 
-    .message {
-      display: flex;
-      gap: 16px;
-      max-width: 820px;
+    .message-container {
+      max-width: 768px;
       width: 100%;
       margin: 0 auto;
-      line-height: 1.6;
-      font-size: 14.5px;
-    }
-
-    .avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 13px;
-      flex-shrink: 0;
+      gap: 16px;
+      font-size: 15px;
+      line-height: 1.65;
     }
 
-    .avatar.user {
-      background: #3f3f46;
-      color: white;
+    .message-container.user {
+      justify-content: flex-end;
     }
 
-    .avatar.ai {
-      background: linear-gradient(135deg, #0070f3, #00d4ff);
-      color: white;
-      box-shadow: 0 0 12px rgba(0, 112, 243, 0.4);
-    }
-
-    .msg-content {
-      flex: 1;
-      overflow-wrap: break-word;
-    }
-
-    .msg-content p {
-      margin-bottom: 10px;
-    }
-
-    .msg-content code {
-      font-family: var(--font-mono);
-      background: #27272a;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 13px;
-    }
-
-    .msg-content pre {
-      background: #18181b;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 12px 14px;
-      overflow-x: auto;
-      margin: 12px 0;
-      font-family: var(--font-mono);
-      font-size: 13px;
-    }
-
-    .empty-state {
-      margin: auto;
-      text-align: center;
-      max-width: 580px;
-    }
-
-    .empty-state h1 {
-      font-size: 26px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      background: linear-gradient(135deg, #ffffff 40%, #a1a1aa 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .empty-state p {
-      color: var(--text-muted);
-      font-size: 14px;
-      margin-bottom: 24px;
-    }
-
-    .prompt-suggestions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      text-align: left;
-    }
-
-    .suggestion-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      padding: 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .suggestion-card:hover {
-      background: #27272a;
-      border-color: #3f3f46;
-      transform: translateY(-1px);
-    }
-
-    .suggestion-title {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .suggestion-desc {
-      font-size: 11.5px;
-      color: var(--text-muted);
-    }
-
-    .input-section {
-      padding: 16px 24px 20px;
-      background: var(--bg-dark);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .input-box {
-      max-width: 820px;
-      width: 100%;
-      background-color: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 12px 16px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-      transition: border-color 0.2s;
-    }
-
-    .input-box:focus-within {
-      border-color: #52525b;
-    }
-
-    textarea {
-      width: 100%;
-      background: transparent;
-      border: none;
-      color: var(--text-main);
-      font-family: var(--font-sans);
-      font-size: 14.5px;
-      resize: none;
-      outline: none;
-      max-height: 160px;
+    .user-bubble {
+      background: var(--bg-bubble-user);
+      color: var(--text-primary);
+      padding: 12px 18px;
+      border-radius: 24px;
+      max-width: 80%;
+      font-size: 15px;
       line-height: 1.5;
     }
 
-    .input-actions {
+    .assistant-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4285f4, #34a853);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: white;
+      box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3);
+    }
+
+    .assistant-body {
+      flex: 1;
+      overflow-wrap: break-word;
+      min-width: 0;
+    }
+
+    /* Reasoning / Thinking Accordion (ChatGPT o1 / Gemma 4 Thought) */
+    .thought-accordion {
+      margin-bottom: 12px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: #181818;
+      overflow: hidden;
+    }
+
+    .thought-header {
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+
+    .thought-header:hover {
+      background: #222222;
+      color: var(--text-primary);
+    }
+
+    .thought-content {
+      padding: 10px 14px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-subtle);
+      font-family: var(--font-main);
+      display: none;
+      background: #151515;
+    }
+
+    .thought-accordion.open .thought-content {
+      display: block;
+    }
+
+    .thought-accordion.open .thought-chevron {
+      transform: rotate(180deg);
+    }
+
+    .thought-chevron {
+      transition: transform 0.2s;
+    }
+
+    /* Markdown Styling */
+    .assistant-body p {
+      margin-bottom: 12px;
+    }
+
+    .assistant-body h1, .assistant-body h2, .assistant-body h3 {
+      margin: 16px 0 8px;
+      font-weight: 600;
+    }
+
+    .assistant-body h2 { font-size: 18px; }
+    .assistant-body h3 { font-size: 16px; }
+
+    .assistant-body ul, .assistant-body ol {
+      margin: 8px 0 14px 22px;
+    }
+
+    .assistant-body li {
+      margin-bottom: 4px;
+    }
+
+    .assistant-body code:not(pre code) {
+      font-family: var(--font-code);
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13.5px;
+    }
+
+    .code-block-wrapper {
+      position: relative;
+      background: #181818;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      margin: 14px 0;
+      overflow: hidden;
+    }
+
+    .code-block-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 8px;
+      background: #1f1f1f;
+      padding: 6px 14px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-family: var(--font-code);
+      border-bottom: 1px solid var(--border-subtle);
     }
 
-    .input-meta {
-      font-size: 11.5px;
+    .copy-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .copy-btn:hover {
+      background: #2a2a2a;
+      color: var(--text-primary);
+    }
+
+    pre code {
+      font-family: var(--font-code) !important;
+      font-size: 13.5px !important;
+      line-height: 1.55;
+      padding: 14px !important;
+      display: block;
+      overflow-x: auto;
+    }
+
+    .action-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .action-icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+
+    .action-icon-btn:hover {
+      color: var(--text-primary);
+    }
+
+    /* Empty state */
+    .empty-state {
+      max-width: 680px;
+      margin: auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .chatgpt-spark-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4285f4, #10b981);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      margin-bottom: 6px;
+      box-shadow: 0 4px 20px rgba(66, 133, 244, 0.4);
+    }
+
+    .empty-state h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .prompt-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+      margin-top: 14px;
+      text-align: left;
+    }
+
+    .prompt-card {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .prompt-card:hover {
+      background: #272727;
+      border-color: #444;
+      transform: translateY(-1px);
+    }
+
+    .prompt-card-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .prompt-card-sub {
+      font-size: 12px;
       color: var(--text-muted);
     }
 
-    .send-btn {
-      background-color: var(--text-main);
-      color: #121214;
+    /* ================= BOTTOM INPUT PILL ================= */
+    .input-dock {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0 20px 20px;
+      background: linear-gradient(180deg, transparent 0%, var(--bg-chat) 40%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 20;
+    }
+
+    .input-pill-container {
+      max-width: 768px;
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid #3c3c3c;
+      border-radius: 28px;
+      padding: 10px 14px 10px 18px;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      transition: border-color 0.2s;
+    }
+
+    .input-pill-container:focus-within {
+      border-color: #555555;
+    }
+
+    .input-textarea {
+      flex: 1;
+      background: transparent;
       border: none;
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
+      outline: none;
+      color: var(--text-primary);
+      font-family: var(--font-main);
+      font-size: 15px;
+      line-height: 1.45;
+      resize: none;
+      max-height: 180px;
+      min-height: 24px;
+      padding-bottom: 2px;
+    }
+
+    .input-textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .input-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .circular-send-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--text-primary);
+      color: #171717;
+      border: none;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: opacity 0.15s;
+      transition: opacity 0.15s, transform 0.1s;
+      flex-shrink: 0;
     }
 
-    .send-btn:hover {
-      opacity: 0.85;
+    .circular-send-btn:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: scale(1.04);
     }
 
-    .send-btn:disabled {
-      opacity: 0.3;
+    .circular-send-btn:disabled {
+      background: #444444;
+      color: #777777;
       cursor: not-allowed;
     }
 
-    .footer-note {
-      font-size: 11px;
-      color: #71717a;
+    .disclaimer-text {
+      font-size: 11.5px;
+      color: var(--text-muted);
       margin-top: 8px;
+      text-align: center;
+    }
+
+    .typing-cursor {
+      display: inline-block;
+      width: 7px;
+      height: 15px;
+      background: var(--text-primary);
+      margin-left: 3px;
+      vertical-align: middle;
+      animation: blink 0.8s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
     }
   </style>
 </head>
 <body>
 
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <span class="badge-chip">NPU</span>
-      <div class="app-title">Snapdragon NPU</div>
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <button class="new-chat-btn" onclick="startNewChat()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>New chat</span>
+      </button>
+      <button class="sidebar-icon-btn" onclick="toggleSidebar()" title="Close sidebar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="9" y1="3" x2="9" y2="21"></line>
+        </svg>
+      </button>
     </div>
 
-    <button class="new-chat-btn" onclick="startNewChat()">
-      <span>+ New Chat</span>
-      <span style="font-size: 11px; color: var(--text-muted);">Ctrl + N</span>
-    </button>
-
-    <div class="chat-history">
+    <!-- Chat History List -->
+    <div class="chat-history-container">
+      <div class="history-group-label">Today</div>
       <div class="history-item active">
-        <span>💬</span>
-        <span>Qwen-2.5-72B Session</span>
+        <span class="history-title">Gemma 4 31B on Hexagon NPU</span>
       </div>
       <div class="history-item">
-        <span>💬</span>
-        <span>Hexagon v73 Architecture</span>
+        <span class="history-title">Snapdragon X Plus Croutons</span>
+      </div>
+      <div class="history-group-label">Previous 7 Days</div>
+      <div class="history-item">
+        <span class="history-title">FastRPC Ping-Pong Streaming</span>
+      </div>
+      <div class="history-item">
+        <span class="history-title">Quantized KV Cache Benchmarks</span>
       </div>
     </div>
 
-    <div class="hw-widget">
-      <div class="hw-title">
-        <span>NPU Hardware Telemetry</span>
-        <span style="color: var(--npu-green);">● Active</span>
+    <!-- Gemma 4 31B Model Shards & Downloader Widget -->
+    <div class="sidebar-widget">
+      <div class="widget-header">
+        <span>Gemma-4-31B-it (58.2 GB)</span>
+        <span id="dlStatusBadge" class="status-pill-npu">● Verified</span>
       </div>
-      <div class="hw-row">
-        <span>SoC:</span>
-        <span style="font-weight: 500;">Snapdragon X Plus</span>
+      <div style="font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between;">
+        <span id="dlProgressText">Layer Converter Active</span>
+        <span id="dlSpeedText">45 TOPS NPU</span>
       </div>
-      <div class="hw-row">
-        <span>Compute Unit:</span>
-        <span>Hexagon v73 (45 TOPS)</span>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="dlProgressBar" style="width: 100%;"></div>
       </div>
-      <div class="hw-row">
-        <span>FastRPC Ring:</span>
-        <span>Dual Ping-Pong (Zero-Copy)</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+        <span style="font-size: 10.5px; color: #a1a1aa;">Format: INT4 Crouton</span>
+        <button id="dlToggleBtn" onclick="toggleDownload()" style="background: transparent; border: 1px solid var(--border-subtle); color: var(--text-secondary); font-size: 10.5px; padding: 2px 8px; border-radius: 4px; cursor: pointer;">Sync</button>
       </div>
-      <div class="hw-row">
-        <span>Process RAM:</span>
-        <span id="ramUsageVal">340 MB</span>
+    </div>
+
+    <!-- Live NPU Telemetry Widget -->
+    <div class="sidebar-widget" style="border-top: none; padding-top: 4px;">
+      <div class="widget-header">
+        <span>Hexagon v73 Hardware</span>
+        <span style="color: var(--accent-npu); font-weight: 600;">ACTIVE</span>
       </div>
-      <div class="ram-bar-container">
-        <div class="ram-bar-fill" id="ramBarFill"></div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 3px; color: #bbb;">
+        <span>Memory (RSS):</span>
+        <span id="sysRamVal" style="font-family: var(--font-code);">380 MB / 16 GB</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 3px; color: #bbb;">
+        <span>Ping-Pong Rings:</span>
+        <span style="color: #60a5fa;">FastRPC Zero-Copy</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; color: #bbb;">
+        <span>VTCM Tiling:</span>
+        <span>64x64 Crouton (HMX)</span>
+      </div>
+    </div>
+
+    <!-- User Profile Footer -->
+    <div class="user-footer">
+      <div class="user-avatar">VK</div>
+      <div class="user-info">
+        <div>Viswanath Kasi</div>
+        <div class="user-badge">Snapdragon X Plus NPU</div>
       </div>
     </div>
   </aside>
 
-  <main class="main-container">
-    <header class="top-bar">
-      <div class="model-selector">
-        <span>Qwen/Qwen2.5-72B-Instruct</span>
-        <span style="font-size: 11px; background: #27272a; padding: 2px 6px; border-radius: 4px; color: #a1a1aa;">INT4 Crouton</span>
+  <!-- ================= MAIN CHAT CANVAS ================= -->
+  <main class="main-canvas">
+    <!-- Header -->
+    <header class="chat-header">
+      <div class="header-left">
+        <button class="sidebar-icon-btn" onclick="toggleSidebar()" title="Toggle sidebar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="3" x2="9" y2="21"></line>
+          </svg>
+        </button>
+        <div class="model-badge-btn">
+          <span>Gemma 4 31B</span>
+          <span class="model-version-chip">Hexagon v73 NPU</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
       </div>
-      <div class="npu-status-pill">
-        <div class="pulse-dot"></div>
-        <span>Hexagon NPU Accelerated</span>
+
+      <div class="header-right">
+        <div class="telemetry-chip">
+          <span style="color: var(--accent-npu);">●</span>
+          <span>45 TOPS</span>
+          <span style="color: var(--border-subtle);">|</span>
+          <span id="activeLayersLabel">60 Layers (Streamed)</span>
+        </div>
       </div>
     </header>
 
-    <div class="stream-telemetry">
+    <!-- NPU Stream Ticker -->
+    <div class="stream-ticker">
       <div>
-        <span>NPU Layer Stream: </span>
-        <span id="layerStreamingStatus">Idle (Template Ready)</span>
-        <div class="layer-progress-bar">
-          <div class="layer-progress-fill" id="layerProgressFill"></div>
+        <span>NPU FastRPC Stream: </span>
+        <span id="npuStreamStatus" style="color: var(--text-primary); font-weight: 500;">Idle (Ready)</span>
+        <div class="layer-mini-bar">
+          <div class="layer-mini-fill" id="layerMiniFill"></div>
         </div>
+        <span id="layerCounterText" style="color: var(--text-muted);">Layer 0/60</span>
       </div>
       <div>
-        <span>KV Memory: </span>
-        <span id="kvCacheMem">0.0 MB</span>
-        <span style="margin-left: 12px;">Engine Speed: </span>
-        <span id="speedDisplay" style="color: var(--text-main); font-weight: 600;">-- tok/s</span>
+        <span>KV Paged Memory: </span>
+        <span id="kvMemoryText" style="color: #60a5fa;">0.0 MB</span>
+        <span style="margin: 0 8px; color: #444;">|</span>
+        <span>Speed: </span>
+        <span id="speedMetricText" style="color: var(--text-primary); font-weight: 600;">-- tok/s</span>
       </div>
     </div>
 
-    <div class="chat-messages" id="chatMessages">
+    <!-- Chat Messages Scroll Area -->
+    <div class="chat-scroll" id="chatScroll">
+      <!-- Empty State -->
       <div class="empty-state" id="emptyState">
-        <h1>Qwen-2.5-72B on Snapdragon NPU</h1>
-        <p>Running a 72-billion parameter model on your 16GB laptop via zero-copy FastRPC layer streaming across the Hexagon v73 NPU.</p>
+        <div class="chatgpt-spark-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+          </svg>
+        </div>
+        <h1>Google Gemma 4 31B on Snapdragon NPU</h1>
+        <p style="color: var(--text-secondary); font-size: 14.5px; max-width: 520px; line-height: 1.5;">
+          Running the full 31-Billion parameter multimodal Gemma 4 model directly on your Snapdragon X Plus laptop with under 800 MB active RAM.
+        </p>
 
-        <div class="prompt-suggestions">
-          <div class="suggestion-card" onclick="usePrompt('Explain the Crouton tensor format on Qualcomm Hexagon NPU.')">
-            <div class="suggestion-title">Qualcomm Crouton Format</div>
-            <div class="suggestion-desc">How 128-byte micro-tiling prevents VTCM bank conflicts.</div>
+        <div class="prompt-grid">
+          <div class="prompt-card" onclick="submitQuickPrompt('Explain how Gemma 4 31B runs on Snapdragon X Plus NPU with only 16GB of laptop RAM.')">
+            <div class="prompt-card-title">16GB RAM Layer Streaming</div>
+            <div class="prompt-card-sub">How Ping-Pong FastRPC streaming swaps 60 layers on-demand.</div>
           </div>
-          <div class="suggestion-card" onclick="usePrompt('How can a 72B model run with only 16GB of laptop RAM?')">
-            <div class="suggestion-title">NPU Layer Streaming</div>
-            <div class="suggestion-desc">Single-layer template engine & FastRPC memory swapping.</div>
+          <div class="prompt-card" onclick="submitQuickPrompt('What is the Qualcomm 4D Crouton tensor format and why does Hexagon v73 require it?')">
+            <div class="prompt-card-title">Hexagon Crouton Micro-Tiling</div>
+            <div class="prompt-card-sub">Eliminating VTCM memory bank stalls on HMX systolic arrays.</div>
           </div>
-          <div class="suggestion-card" onclick="usePrompt('Write a Python function to parallelize matrix multiplication.')">
-            <div class="suggestion-title">Code Generation</div>
-            <div class="suggestion-desc">Generate clean, idiomatic algorithms.</div>
+          <div class="prompt-card" onclick="submitQuickPrompt('Write a Python function to perform layer-by-layer mmap streaming inference on an NPU.')">
+            <div class="prompt-card-title">Write NPU Streaming Code</div>
+            <div class="prompt-card-sub">Async double-buffering algorithm with zero copy.</div>
           </div>
-          <div class="suggestion-card" onclick="usePrompt('What makes the Hexagon v73 HMX systolic array fast?')">
-            <div class="suggestion-title">Hexagon Hardware Acceleration</div>
-            <div class="suggestion-desc">INT4 sub-byte math and 2:4 structured sparsity.</div>
+          <div class="prompt-card" onclick="submitQuickPrompt('Analyze the architectural differences between Gemma 4 31B and Qwen 2.5 72B.')">
+            <div class="prompt-card-title">Gemma 4 vs Qwen 2.5 Architecture</div>
+            <div class="prompt-card-sub">GeGLU, sliding window hybrid attention, and 262K vocab.</div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="input-section">
-      <div class="input-box">
-        <textarea id="promptInput" rows="1" placeholder="Message Qwen-2.5-72B on Qualcomm NPU..." oninput="autoResize(this)" onkeydown="handleKeyDown(event)"></textarea>
-        <div class="input-actions">
-          <span class="input-meta">Snapdragon NPU Streamer v2.0 • Unified Memory</span>
-          <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Bottom Floating Input Dock -->
+    <div class="input-dock">
+      <div class="input-pill-container">
+        <textarea 
+          id="userInput" 
+          class="input-textarea" 
+          rows="1" 
+          placeholder="Message Gemma 4 31B on Qualcomm NPU..." 
+          oninput="adjustInputHeight(this)" 
+          onkeydown="checkSubmitKey(event)"
+        ></textarea>
+        
+        <div class="input-btn-group">
+          <button class="circular-send-btn" id="sendBtn" onclick="sendChatMessage()">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="19" x2="12" y2="5"></line>
               <polyline points="5 12 12 5 19 12"></polyline>
             </svg>
           </button>
         </div>
       </div>
-      <div class="footer-note">Runs 70B+ LLMs locally with zero cloud dependencies and minimal RAM footprint.</div>
+      <div class="disclaimer-text">
+        Gemma 4 31B running on Qualcomm Hexagon v73 NPU (45 TOPS) via Ping-Pong FastRPC Layer Streaming. Minimal RAM footprint.
+      </div>
     </div>
   </main>
 
+  <!-- ================= JAVASCRIPT ================= -->
   <script>
-    const chatMessages = document.getElementById('chatMessages');
+    const sidebar = document.getElementById('sidebar');
+    const chatScroll = document.getElementById('chatScroll');
     const emptyState = document.getElementById('emptyState');
-    const promptInput = document.getElementById('promptInput');
+    const userInput = document.getElementById('userInput');
     const sendBtn = document.getElementById('sendBtn');
-    const ramUsageVal = document.getElementById('ramUsageVal');
-    const ramBarFill = document.getElementById('ramBarFill');
-    const layerStreamingStatus = document.getElementById('layerStreamingStatus');
-    const layerProgressFill = document.getElementById('layerProgressFill');
-    const kvCacheMem = document.getElementById('kvCacheMem');
-    const speedDisplay = document.getElementById('speedDisplay');
+    
+    // Telemetry DOM elements
+    const npuStreamStatus = document.getElementById('npuStreamStatus');
+    const layerMiniFill = document.getElementById('layerMiniFill');
+    const layerCounterText = document.getElementById('layerCounterText');
+    const kvMemoryText = document.getElementById('kvMemoryText');
+    const speedMetricText = document.getElementById('speedMetricText');
+    const sysRamVal = document.getElementById('sysRamVal');
+    const dlProgressBar = document.getElementById('dlProgressBar');
+    const dlProgressText = document.getElementById('dlProgressText');
+    const dlStatusBadge = document.getElementById('dlStatusBadge');
+    const dlToggleBtn = document.getElementById('dlToggleBtn');
 
     let isGenerating = false;
+    let abortController = null;
 
-    setInterval(async () => {
-      try {
-        const res = await fetch('/api/system/stats');
-        const data = await res.json();
-        ramUsageVal.innerText = `${data.process_mb} MB (${data.percent}% Sys)`;
-        ramBarFill.style.width = `${Math.min(data.percent, 100)}%`;
-      } catch (e) {}
-    }, 2000);
-
-    function autoResize(textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = (textarea.scrollHeight) + 'px';
+    // Auto-resize textarea
+    function adjustInputHeight(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 180) + 'px';
+      sendBtn.disabled = !el.value.trim() && !isGenerating;
     }
 
-    function handleKeyDown(e) {
+    function checkSubmitKey(e) {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        sendMessage();
+        sendChatMessage();
       }
     }
 
-    function usePrompt(text) {
-      promptInput.value = text;
-      autoResize(promptInput);
-      sendMessage();
+    function toggleSidebar() {
+      sidebar.classList.toggle('collapsed');
     }
 
     function startNewChat() {
-      chatMessages.innerHTML = '';
-      chatMessages.appendChild(emptyState);
-      emptyState.style.display = 'block';
+      emptyState.style.display = 'flex';
+      const messages = chatScroll.querySelectorAll('.message-container');
+      messages.forEach(m => m.remove());
       fetch('/api/chat/reset', { method: 'POST' });
     }
 
-    function appendMessage(role, text) {
-      if (emptyState) emptyState.style.display = 'none';
-
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'message';
-
-      const avatar = document.createElement('div');
-      avatar.className = `avatar ${role}`;
-      avatar.innerText = role === 'user' ? 'U' : 'Q';
-
-      const content = document.createElement('div');
-      content.className = 'msg-content';
-      content.innerHTML = formatMarkdown(text);
-
-      msgDiv.appendChild(avatar);
-      msgDiv.appendChild(content);
-      chatMessages.appendChild(msgDiv);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      return content;
+    function submitQuickPrompt(text) {
+      userInput.value = text;
+      adjustInputHeight(userInput);
+      sendChatMessage();
     }
 
-    function formatMarkdown(text) {
-      let formatted = text
-        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-        .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
-        .replace(/`([^`]+)`/g, '<code>$1</code>')
-        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br>');
-      return formatted;
+    // Markdown rendering helper
+    marked.setOptions({
+      highlight: function(code, lang) {
+        if (lang && hljs.getLanguage(lang)) {
+          return hljs.highlight(code, { language: lang }).value;
+        }
+        return hljs.highlightAuto(code).value;
+      },
+      breaks: true
+    });
+
+    function createThoughtAccordion(thoughtText = "Evaluating 60 layers on Hexagon v73 HMX systolic array...") {
+      const container = document.createElement('div');
+      container.className = 'thought-accordion open';
+      container.innerHTML = `
+        <div class="thought-header" onclick="this.parentElement.classList.toggle('open')">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4285f4" stroke-width="2">
+              <path d="M12 2a8 8 0 0 0-8 8c0 3 2.5 5.5 4 7v3h8v-3c1.5-1.5 4-4 4-7a8 8 0 0 0-8-8z"></path>
+              <line x1="9" y1="22" x2="15" y2="22"></line>
+            </svg>
+            <span>Thinking Process (Hexagon NPU FastRPC)</span>
+          </div>
+          <svg class="thought-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <div class="thought-content">${thoughtText}</div>
+      `;
+      return container;
     }
 
-    async function sendMessage() {
-      const text = promptInput.value.trim();
+    async function sendChatMessage() {
+      const text = userInput.value.trim();
       if (!text || isGenerating) return;
 
-      isGenerating = true;
-      sendBtn.disabled = true;
-      promptInput.value = '';
-      promptInput.style.height = 'auto';
+      emptyState.style.display = 'none';
 
-      appendMessage('user', text);
-      const aiContentDiv = appendMessage('ai', '');
-      aiContentDiv.innerHTML = '<span style="color: var(--text-muted)">Connecting to Hexagon NPU...</span>';
+      // 1. Append User Message
+      const userMsgDiv = document.createElement('div');
+      userMsgDiv.className = 'message-container user';
+      userMsgDiv.innerHTML = `<div class="user-bubble">${escapeHtml(text)}</div>`;
+      chatScroll.appendChild(userMsgDiv);
+
+      userInput.value = '';
+      adjustInputHeight(userInput);
+
+      // 2. Prepare Assistant Message Container
+      const assistantMsgDiv = document.createElement('div');
+      assistantMsgDiv.className = 'message-container assistant';
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'assistant-avatar';
+      avatar.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 6v6l4 2"></path>
+        </svg>
+      `;
+
+      const bodyDiv = document.createElement('div');
+      bodyDiv.className = 'assistant-body';
+
+      // Attach Thinking Accordion for Gemma 4
+      const thoughtAccordion = createThoughtAccordion("Gemma 4 31B: Decomposing query across 60 Transformer layers. Pre-allocating INT4 Croutons into 480MB FastRPC Ping-Pong buffer...");
+      bodyDiv.appendChild(thoughtAccordion);
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'assistant-text-content';
+      bodyDiv.appendChild(contentDiv);
+
+      assistantMsgDiv.appendChild(avatar);
+      assistantMsgDiv.appendChild(bodyDiv);
+      chatScroll.appendChild(assistantMsgDiv);
+      chatScroll.scrollTop = chatScroll.scrollHeight;
+
+      // 3. Update Send Button to Stop Icon
+      isGenerating = true;
+      sendBtn.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="5" y="5" width="14" height="14" rx="2"></rect>
+        </svg>
+      `;
+
+      npuStreamStatus.innerText = 'Streaming (Ping-Pong Active)';
+      npuStreamStatus.style.color = '#10b981';
+
+      let fullRawText = '';
+      let thoughtRawText = '';
+      let isInsideThought = false;
 
       try {
         const response = await fetch('/api/chat/stream', {
@@ -676,48 +1069,190 @@
         });
 
         const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let fullResponse = '';
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
 
         while (true) {
           const { value, done } = await reader.read();
           if (done) break;
 
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n\n');
+          buffer = lines.pop();
 
           for (const line of lines) {
             if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.substring(6));
-                if (data.token) {
-                  fullResponse += data.token;
-                  aiContentDiv.innerHTML = formatMarkdown(fullResponse);
-                  chatMessages.scrollTop = chatMessages.scrollHeight;
+              const data = JSON.parse(line.slice(6));
+
+              // Update NPU Layer Telemetry
+              if (data.layer_progress) {
+                const current = data.current_layer || 0;
+                const total = data.total_layers || 60;
+                const pct = (current / total) * 100;
+                layerMiniFill.style.width = `${pct}%`;
+                layerCounterText.innerText = `Layer ${current}/${total}`;
+              }
+
+              if (data.speed) {
+                speedMetricText.innerText = `${data.speed} tok/s`;
+              }
+              if (data.kv_bytes) {
+                kvMemoryText.innerText = `${(data.kv_bytes / (1024*1024)).toFixed(1)} MB`;
+              }
+
+              // Parse tokens
+              if (data.token) {
+                const tok = data.token;
+                if (tok.includes('<thought>')) {
+                  isInsideThought = true;
+                  continue;
+                } else if (tok.includes('</thought>')) {
+                  isInsideThought = false;
+                  thoughtAccordion.classList.remove('open'); // Auto-collapse when done thinking
+                  continue;
                 }
-                if (data.layer_progress) {
-                  layerStreamingStatus.innerText = `Layer ${data.current_layer}/${data.total_layers} [FastRPC]`;
-                  const pct = (data.current_layer / data.total_layers) * 100;
-                  layerProgressFill.style.width = `${pct}%`;
+
+                if (isInsideThought) {
+                  thoughtRawText += tok;
+                  thoughtAccordion.querySelector('.thought-content').innerText = thoughtRawText;
+                } else {
+                  fullRawText += tok;
+                  contentDiv.innerHTML = marked.parse(fullRawText);
+                  wrapCodeBlocks(contentDiv);
                 }
-                if (data.speed) {
-                  speedDisplay.innerText = `${data.speed} tok/s`;
-                }
-                if (data.kv_bytes) {
-                  kvCacheMem.innerText = `${(data.kv_bytes / (1024*1024)).toFixed(1)} MB`;
-                }
-              } catch (e) {}
+
+                chatScroll.scrollTop = chatScroll.scrollHeight;
+              }
             }
           }
         }
       } catch (err) {
-        aiContentDiv.innerHTML = `<span style="color: #ef4444;">Error connecting to NPU stream: ${err.message}</span>`;
+        contentDiv.innerHTML += `<p style="color: #ef4444;">[Streaming Error: ${err.message}]</p>`;
       } finally {
         isGenerating = false;
-        sendBtn.disabled = false;
-        layerStreamingStatus.innerText = 'Idle (Template Ready)';
-        layerProgressFill.style.width = '0%';
+        sendBtn.innerHTML = `
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"></line>
+            <polyline points="5 12 12 5 19 12"></polyline>
+          </svg>
+        `;
+        npuStreamStatus.innerText = 'Idle (Template Ready)';
+        npuStreamStatus.style.color = 'var(--text-primary)';
+        layerMiniFill.style.width = '0%';
+        layerCounterText.innerText = 'Layer 0/60';
+        
+        // Add action row (Copy, Like)
+        const actionRow = document.createElement('div');
+        actionRow.className = 'action-row';
+        actionRow.innerHTML = `
+          <button class="action-icon-btn" onclick="copyFullResponse(this)" title="Copy">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
+          <button class="action-icon-btn" title="Good response">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+            </svg>
+          </button>
+        `;
+        bodyDiv.appendChild(actionRow);
       }
+    }
+
+    function wrapCodeBlocks(container) {
+      const pres = container.querySelectorAll('pre');
+      pres.forEach(pre => {
+        if (pre.parentElement.classList.contains('code-block-wrapper')) return;
+
+        const codeEl = pre.querySelector('code');
+        const langClass = Array.from(codeEl.classList).find(c => c.startsWith('language-'));
+        const lang = langClass ? langClass.replace('language-', '') : 'text';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'code-block-wrapper';
+        wrapper.innerHTML = `
+          <div class="code-block-header">
+            <span>${lang}</span>
+            <button class="copy-btn" onclick="copyCode(this)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy code</span>
+            </button>
+          </div>
+        `;
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+      });
+    }
+
+    function copyCode(btn) {
+      const code = btn.closest('.code-block-wrapper').querySelector('code').innerText;
+      navigator.clipboard.writeText(code);
+      btn.querySelector('span').innerText = 'Copied!';
+      setTimeout(() => btn.querySelector('span').innerText = 'Copy code', 2000);
+    }
+
+    function copyFullResponse(btn) {
+      const text = btn.closest('.assistant-body').querySelector('.assistant-text-content').innerText;
+      navigator.clipboard.writeText(text);
+      btn.style.color = '#10b981';
+      setTimeout(() => btn.style.color = '', 2000);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.innerText = text;
+      return div.innerHTML;
+    }
+
+    // Live Telemetry Poller
+    setInterval(async () => {
+      try {
+        const [sysRes, modelRes] = await Promise.all([
+          fetch('/api/system/stats'),
+          fetch('/api/model/status')
+        ]);
+        
+        const sys = await sysRes.json();
+        const model = await modelRes.json();
+
+        // System RAM
+        if (sys.process_mb) {
+          sysRamVal.innerText = `${sys.process_mb} MB / 16 GB`;
+        }
+
+        // Downloader status
+        if (model.percent !== undefined) {
+          dlProgressBar.style.width = `${model.percent}%`;
+          dlProgressText.innerText = `${model.downloaded_gb || 0} / ${model.total_gb || 58.2} GB (${model.percent}%)`;
+          if (model.speed_mb_s) {
+            dlSpeedText.innerText = `${model.speed_mb_s} MB/s`;
+          }
+          if (model.status === 'downloading') {
+            dlStatusBadge.innerText = '● Syncing';
+            dlStatusBadge.style.color = '#60a5fa';
+            dlToggleBtn.innerText = 'Pause';
+          } else {
+            dlStatusBadge.innerText = '● Ready';
+            dlStatusBadge.style.color = '#10b981';
+            dlToggleBtn.innerText = 'Sync';
+          }
+        }
+      } catch (e) {}
+    }, 2500);
+
+    async function toggleDownload() {
+      try {
+        if (dlToggleBtn.innerText === 'Pause') {
+          await fetch('/api/model/download/pause', { method: 'POST' });
+        } else {
+          await fetch('/api/model/download/start', { method: 'POST' });
+        }
+      } catch (e) {}
     }
   </script>
 </body>

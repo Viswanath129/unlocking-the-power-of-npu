@@ -48,17 +48,19 @@ class NPULayerStreamingEngine:
         self._is_initialized = False
 
     def load_mock_model(self, num_layers: Optional[int] = None):
-        """Initializes a compact synthetic model conforming to config dimensions"""
-        n_layers = num_layers or self.config.num_hidden_layers
+        """Initializes a compact synthetic model conforming to config dimensions with < 20MB RAM"""
+        n_layers = num_layers or 4
         self.config.num_hidden_layers = n_layers
-        hidden = self.config.hidden_size
-        vocab = self.config.vocab_size
-        inter = self.config.intermediate_size
-        num_kv = self.config.num_key_value_heads
-        num_heads = self.config.num_attention_heads
+        
+        # Use compact mock dimensions to strictly enforce low RAM usage (< 20MB)
+        hidden = min(self.config.hidden_size, 256)
+        vocab = min(self.config.vocab_size, 1024)
+        inter = min(self.config.intermediate_size, 512)
+        num_kv = 2
+        num_heads = 4
         head_dim = hidden // num_heads
 
-        print(f"[NPU-Engine] Initializing {n_layers}-layer model (Hidden: {hidden}, Inter: {inter}, Heads: {num_heads}/{num_kv})...", flush=True)
+        print(f"[NPU-Engine] Initializing compact {n_layers}-layer template (Hidden: {hidden}, Inter: {inter}, Heads: {num_heads}/{num_kv})...", flush=True)
 
         self.embed_tokens = np.random.randn(vocab, hidden).astype(np.float32) * 0.02
         self.final_norm_weight = np.ones(hidden, dtype=np.float32)
@@ -79,7 +81,7 @@ class NPULayerStreamingEngine:
             self._layer_weight_store[i] = self.packer.pack_layer_weights(layer_raw, self.config.quant_mode)
 
         self._is_initialized = True
-        print(f"[NPU-Engine] Successfully packed {n_layers} layers in Crouton format ({self.config.quant_mode.value.upper()}) ready for NPU streaming.", flush=True)
+        print(f"[NPU-Engine] Successfully initialized {n_layers} layers in Crouton format ({self.config.quant_mode.value.upper()}) ready for NPU streaming.", flush=True)
 
     def _fetch_layer_weights(self, layer_idx: int) -> Dict[str, Any]:
         return self._layer_weight_store[layer_idx]

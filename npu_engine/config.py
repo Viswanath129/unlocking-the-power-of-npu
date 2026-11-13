@@ -41,7 +41,7 @@ class NPUHardwareProfile:
 @dataclass
 class NPUModelConfig:
     """Model execution configuration for Hexagon NPU Layer-Streaming Engine"""
-    model_name_or_path: str = "Qwen/Qwen2.5-72B-Instruct"
+    model_name_or_path: str = "google/gemma-4-31B-it"
     backend: NPUEngineBackend = NPUEngineBackend.ONNX_QNN
     quant_mode: NPUQuantMode = NPUQuantMode.INT4
     
@@ -52,16 +52,52 @@ class NPUModelConfig:
     
     # Context & Layer Dimensions
     max_seq_len: int = 4096
-    hidden_size: int = 8192
-    num_attention_heads: int = 64
-    num_key_value_heads: int = 8           # Grouped-Query Attention (GQA)
-    intermediate_size: int = 29568         # MLP hidden dimension
-    num_hidden_layers: int = 80            # 80 layers for 72B
-    vocab_size: int = 152064
+    hidden_size: int = 5376
+    num_attention_heads: int = 32
+    num_key_value_heads: int = 16          # Grouped-Query Attention (GQA)
+    intermediate_size: int = 21504         # MLP hidden dimension
+    num_hidden_layers: int = 60            # 60 layers for Gemma 4 31B
+    vocab_size: int = 262144
+    head_dim: int = 256
     rms_norm_eps: float = 1e-6
+    final_logit_softcapping: float = 30.0
+    sliding_window_size: int = 4096
+    full_attention_interval: int = 6
     
     # KV Cache Parameters
     paged_kv_block_size: int = 16          # Tokens per KV memory page
     max_batch_size: int = 1
     
     hardware: NPUHardwareProfile = field(default_factory=NPUHardwareProfile)
+
+    @classmethod
+    def for_gemma4_31b(cls, quant_mode: NPUQuantMode = NPUQuantMode.INT4) -> "NPUModelConfig":
+        """Factory for Google Gemma 4 31B Instruct."""
+        return cls(
+            model_name_or_path="google/gemma-4-31B-it",
+            quant_mode=quant_mode,
+            hidden_size=5376,
+            num_attention_heads=32,
+            num_key_value_heads=16,
+            intermediate_size=21504,
+            num_hidden_layers=60,
+            vocab_size=262144,
+            head_dim=256,
+            sliding_window_size=4096,
+            full_attention_interval=6
+        )
+
+    @classmethod
+    def for_qwen25_72b(cls, quant_mode: NPUQuantMode = NPUQuantMode.INT4) -> "NPUModelConfig":
+        """Factory for Qwen 2.5 72B Instruct."""
+        return cls(
+            model_name_or_path="Qwen/Qwen2.5-72B-Instruct",
+            quant_mode=quant_mode,
+            hidden_size=8192,
+            num_attention_heads=64,
+            num_key_value_heads=8,
+            intermediate_size=29568,
+            num_hidden_layers=80,
+            vocab_size=152064,
+            head_dim=128
+        )
